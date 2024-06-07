@@ -19,17 +19,29 @@ PERSISTENT="YES"
 
 
 # Allocate the image
-datastore_id = 1  # Adjust this as needed
-image_id = one.image.allocate(image_template, datastore_id)
-print(f"Image ID: {image_id}")
+#datastore_id = 1  # Adjust this as needed
+#image_id = one.image.allocate(image_template, datastore_id)
+#print(f"Image ID: {image_id}")
+
+templates_info = one.templatepool.info(-2, -1, -1)
+for template in templates_info.VMTEMPLATE:
+    if template.ID != 0:
+        one.template.delete(template.ID)
 
 
-one.template.allocate('''
+template_id = one.template.allocate('''
   NAME="test100"
   MEMORY="1024"
-  DISK=[ {image_id} ]
+  DISK = [
+  IMAGE_ID = "1" ]
   CPU="1"
   VCPU="2"
 ''')
-print("Template ID: {template_id}")
+
+print(f"Created Template ID: {template_id}")
+
+one.template.instantiate(template_id, "TESTE")
+print("Instance created successfully")
+
+
 
