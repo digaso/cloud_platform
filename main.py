@@ -42,6 +42,3 @@ print(f"Created Template ID: {template_id}")
 
 one.template.instantiate(template_id, "TESTE")
 print("Instance created successfully")
-
-
-
