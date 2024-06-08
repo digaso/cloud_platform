@@ -1,24 +1,22 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const HomePage = () => {
+const OSSelectionPage = () => {
     const navigate = useNavigate();
 
-    const handleStartSetup = (os) => {
+    const handleSelectOS = (os) => {
         navigate(`/vm-config?os=${os}`);
     };
 
     return (
         <div style={styles.container}>
-            <h1 style={styles.header}>Welcome to VM Configurator</h1>
-            <div style={styles.buttonGroup}>
-                <button onClick={() => handleStartSetup('Linux')} style={styles.button}>
-                    Start Setup for Linux
-                </button>
-                <button onClick={() => handleStartSetup('Windows')} style={styles.button}>
-                    Start Setup for Windows
-                </button>
-            </div>
+            <h1 style={styles.header}>Select OS</h1>
+            <button onClick={() => handleSelectOS('Linux')} style={styles.button}>
+                Linux
+            </button>
+            <button onClick={() => handleSelectOS('Windows')} style={styles.button}>
+                Windows
+            </button>
         </div>
     );
 };
@@ -37,12 +35,6 @@ const styles = {
     header: {
         marginBottom: '20px',
     },
-    buttonGroup: {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '10px',
-    },
     button: {
         padding: '10px 20px',
         fontSize: '16px',
@@ -51,7 +43,8 @@ const styles = {
         border: 'none',
         borderRadius: '5px',
         cursor: 'pointer',
+        marginTop: '10px',
     },
 };
 
-export default HomePage;
+export default OSSelectionPage;

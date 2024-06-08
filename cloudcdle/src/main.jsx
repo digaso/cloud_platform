@@ -2,12 +2,17 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import HomePage from "./HomePage";
+import LoginPage from "./LoginPage";
 import VMConfig from "./VMConfig";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 const router = createBrowserRouter([
   {
     path: "/",
+    element: <LoginPage />,
+  },
+  {
+    path: "/os-selection",
     element: <HomePage />,
   },
   {

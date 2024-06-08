@@ -6,6 +6,7 @@ const VMConfigurator = () => {
     const queryParams = new URLSearchParams(location.search);
     const os = queryParams.get('os');
 
+    const [vmName, setVmName] = useState('');
     const [cpus, setCpus] = useState(0);
     const [memory, setMemory] = useState(0);
     const [processingPower, setProcessingPower] = useState(0);
@@ -13,20 +14,38 @@ const VMConfigurator = () => {
 
     const handleCreate = () => {
         setIsCreating(true);
+        const template_id = `one.template.allocate('''
+          NAME="${vmName}"
+          MEMORY="${memory}"
+          DISK = [
+          IMAGE_ID = "${os === 'Linux' ? 1 : 2}" ]
+          CPU="${cpus}"
+          VCPU="${processingPower}"
+        ''')`;
+        
         setTimeout(() => {
             setIsCreating(false);
-            alert(`VM has been created successfully!\nOS: ${os}\nMemory: ${memory} MB, CPUs: ${cpus}, Processing Power: ${processingPower} MB`);
+            alert(`VM has been created successfully!\nTemplate ID: ${template_id}`);
         }, 3000);
     };
 
     const validateInputs = () => {
-        return cpus > 0 && cpus <= 8 && memory > 0 && processingPower > 0;
+        return vmName && cpus > 0 && cpus <= 8 && memory > 0 && processingPower > 0;
     };
 
     return (
         <div style={styles.container}>
             <div style={styles.form}>
                 <h2 style={styles.header}>Configuring VM for {os}</h2>
+                <div style={styles.formGroup}>
+                    <label style={styles.label}>VM Name:</label>
+                    <input
+                        type="text"
+                        value={vmName}
+                        onChange={(e) => setVmName(e.target.value)}
+                        style={styles.input}
+                    />
+                </div>
                 <div style={styles.formGroup}>
                     <label style={styles.label}>Number of CPUs (max 8):</label>
                     <input
@@ -93,9 +112,8 @@ const styles = {
         justifyContent: 'center',
         alignItems: 'center',
         height: '100vh',
-        backgroundColor: '#1f1f2e',
-        color: '#e0e0eb',
-        fontFamily: 'Helvetica, Arial, sans-serif',
+        width: '100%',
+        textAlign: 'center',
     },
     form: {
         display: 'flex',
