@@ -4,6 +4,7 @@ import "./index.css";
 import HomePage from "./HomePage";
 import LoginPage from "./LoginPage";
 import VMConfig from "./VMConfig";
+import RegistrationPage from "./RegistrationPage"
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 const router = createBrowserRouter([
@@ -14,6 +15,10 @@ const router = createBrowserRouter([
   {
     path: "/os-selection",
     element: <HomePage />,
+  },
+  {
+    path: "/login",
+    element: <LoginPage/>
   },
   {
     path: "/vm-config",

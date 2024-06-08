@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const LoginPage = () => {
     const [username, setUsername] = useState('');
@@ -7,15 +8,27 @@ const LoginPage = () => {
     const navigate = useNavigate();
 
     const handleLogin = () => {
-        // In a real application, you would validate the login credentials here.
-        // For simplicity, we will just save them to localStorage.
         const user = { username, password };
-        localStorage.setItem('user', JSON.stringify(user));
-        navigate('/os-selection');
-    };
+        
+        axios.post('http://localhost:8080/login', user)
+        .then((res) => {
+            if (res.status === 200) {
+                console.log(res.data)
+            } else {
+                alert('Invalid username or password. Please try again.');
+            }
+        })
 
+        navigate('/os-selection');  
+    };
+    const handleNavigateToRegister = () => {
+        navigate('/');
+    };
     return (
         <div style={styles.container}>
+            <button onClick={handleNavigateToRegister} style={styles.button}>
+                Back
+            </button>
             <h1 style={styles.header}>Login</h1>
             <div style={styles.formGroup}>
                 <label style={styles.label}>Username:</label>

@@ -9,10 +9,9 @@ const RegisterPage = () => {
 
     const handleRegister = () => {
         // Retrieve existing users from localStorage
-        const users = JSON.parse(localStorage.getItem('users')) || [];
         
         // Check if the username already exists
-        if (users.some(user => user.username === username)) {
+        if (users.some(user === username)) {
             alert('Username already exists. Please choose another one.');
             return;
         }
