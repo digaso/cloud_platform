@@ -13,16 +13,6 @@ TYPE="OS"
 PERSISTENT="YES"
 '''
 
-# images = one.imagepool.info(-2, -1, -1)
-# for image in images.IMAGE:
-#     print(f"ID: {image.ID}, Name: {image.NAME}, Type: {image.TYPE}, Persistent: {image.PERSISTENT}")
-
-
-# Allocate the image
-#datastore_id = 1  # Adjust this as needed
-#image_id = one.image.allocate(image_template, datastore_id)
-#print(f"Image ID: {image_id}")
-
 templates_info = one.templatepool.info(-2, -1, -1)
 for template in templates_info.VMTEMPLATE:
     if template.ID != 0:
