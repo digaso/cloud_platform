@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -8,27 +9,17 @@ const RegisterPage = () => {
     const navigate = useNavigate();
 
     const handleRegister = () => {
-        // Retrieve existing users from localStorage
         
-        // Check if the username already exists
-        if (users.some(user === username)) {
-            alert('Username already exists. Please choose another one.');
-            return;
-        }
-
-        // Check if passwords match
-        if (password !== confirmPassword) {
-            alert('Passwords do not match. Please try again.');
-            return;
-        }
-
-        // Save new user to localStorage
         const newUser = { username, password };
-        users.push(newUser);
-        localStorage.setItem('users', JSON.stringify(users));
-
-        // Navigate to OS selection page or login page
-        navigate('/os-selection');
+        axios.post('http://localhost:8080/register', newUser)
+        .then((res) => {
+                alert(res.data.message)
+                navigate('/os-selection');
+         
+        })
+        .catch((error) => {
+            alert(error.response.data.message);
+        });
     };
 
     const handleNavigateToLogin = () => {

@@ -12,18 +12,21 @@ const LoginPage = () => {
         
         axios.post('http://localhost:8080/login', user)
         .then((res) => {
-            if (res.status === 200) {
-                console.log(res.data)
-            } else {
-                alert('Invalid username or password. Please try again.');
-            }
+                alert(res.data.message)
+                navigate('/os-selection');
+         
         })
+        .catch((error) => {
+            alert(error.response.data.message);
+        });
 
-        navigate('/os-selection');  
     };
-    const handleNavigateToRegister = () => {
-        navigate('/');
-    };
+        
+        const handleNavigateToRegister = () => {
+
+            navigate('/');  
+        }
+        
     return (
         <div style={styles.container}>
             <button onClick={handleNavigateToRegister} style={styles.button}>
