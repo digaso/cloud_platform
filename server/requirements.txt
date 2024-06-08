@@ -1,0 +1,3 @@
+pyone
+pymongo
+firebase-admin
