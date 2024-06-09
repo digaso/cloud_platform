@@ -65,8 +65,8 @@ def login():
     
     one_id = users[0].get('one_id')
     one = pyone.OneServer(f"http://{IP}:2633", session="oneadmin:12345")
-    vm_pool = one.vmpool.info(-2, -1, -1, -1) # Retrieve all VMs
-    user_vms = [vm for vm in vm_pool.VM if vm.UID == one_id] # type: ignore # Filter VMs by user ID
+    vm_pool = one.vmpool.info(-2, -1, -1, -1) 
+    user_vms = [vm for vm in vm_pool.VM if vm.UID == one_id]
 
     # Print the number of VMs the user has
     print(f"The user has {len(user_vms)} VMs.")
