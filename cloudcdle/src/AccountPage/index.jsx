@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const AccountPage = () => {
   const navigate = useNavigate();
@@ -11,20 +11,21 @@ const AccountPage = () => {
     one_id: "No info",
     vms: [],
     ssh_keys_pub: [],
-    ssh_keys_priv: []
+    ssh_keys_priv: [],
   });
 
-  const [newSshKey, setNewSshKey] = useState('');
-  const username = localStorage.getItem('username');
+  const [newSshKey, setNewSshKey] = useState("");
+  const username = localStorage.getItem("username");
 
   useEffect(() => {
     // Fetch user data from the server
-    axios.get('http://localhost:8080/user', { params: { username } })
+    axios
+      .get("http://localhost:8080/user", { params: { username } })
       .then((response) => {
         setUserData(response.data);
       })
       .catch((error) => {
-        console.error('Error fetching user data:', error);
+        console.error("Error fetching user data:", error);
       });
   }, [username]);
 
@@ -35,20 +36,21 @@ const AccountPage = () => {
   const handleSshKeySubmit = () => {
     const userConfirmed = window.confirm("Do you want to update your SSH key?");
     if (userConfirmed) {
-      axios.post('http://localhost:8080/user/ssh_key', {
-        username,
-        ssh_key: newSshKey
-      })
-      .then((response) => {
-        setUserData(prevData => ({
-          ...prevData,
-          ssh_keys_pub: [...prevData.ssh_keys_pub, newSshKey]
-        }));
-        setNewSshKey('');
-      })
-      .catch((error) => {
-        console.error('Error adding SSH key:', error);
-      });
+      axios
+        .post("http://localhost:8080/user/ssh_key", {
+          username,
+          ssh_key: newSshKey,
+        })
+        .then((response) => {
+          setUserData((prevData) => ({
+            ...prevData,
+            ssh_keys_pub: [...prevData.ssh_keys_pub, newSshKey],
+          }));
+          setNewSshKey("");
+        })
+        .catch((error) => {
+          console.error("Error adding SSH key:", error);
+        });
     }
   };
 
@@ -69,9 +71,6 @@ const AccountPage = () => {
       <button onClick={handleHomePage} style={styles.button}>
         Back
       </button>
-      <button onClick={handleVMSpecsPage} style={styles.button}>
-        My VMs
-      </button>
       <h1 style={styles.header}>My Account</h1>
       <div style={styles.userData}>
         <p>Username: {userData.username}</p>
@@ -79,15 +78,17 @@ const AccountPage = () => {
         <p>VMs:</p>
         <ul>
           {userData.vms.map((vm, index) => (
-            <li key={index}>{vm.NAME}</li>
+            <li key={vm.ID}>
+              <a>{vm.Name}</a> - {vm.Disk.SIZE} MB
+            </li>
           ))}
         </ul>
-        <p>Public SSH: {userData.ssh_keys_pub.join(', ')}</p>
+        <p>Public SSH: {userData.ssh_keys_pub.join(", ")}</p>
         <input
           type="text"
           value={newSshKey}
           onChange={handleSshKeyChange}
-          placeholder="Enter new SSH Key"
+          placeholder="Enter new SSH Key  "
           style={styles.input}
         />
         <button onClick={handleSshKeySubmit} style={styles.button}>
