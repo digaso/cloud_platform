@@ -136,7 +136,6 @@ def create_vm():
     username= data['username']
     name = data['name']
     size = data['size']
-
     template_id = one.template.allocate(f'''
 NAME="{username}-{name}-{time.time()}"
 CONTEXT = [
@@ -161,6 +160,22 @@ GRAPHICS = [
     update_user_vms(username)
     return jsonify({"message": "VM created successfully"}), 201
 
+
+@app.route('/host/info', methods=['GET'])
+def host():
+    one = pyone.OneServer(f"http://{IP}:2633/RPC2", session="oneadmin:12345")
+    host_share = one.hostpool.info(0).HOST[0].HOST_SHARE #type: ignore
+    host_data ={
+        "cpu_usage": host_share.CPU_USAGE,
+        "memory_usage": host_share.MEM_USAGE,
+        "max_cpu": host_share.MAX_CPU,
+        "max_memory": host_share.MAX_MEM,
+        "running_vms": host_share.RUNNING_VMS,
+        "used_disk": host_share.DATASTORES.USED_DISK,
+        "max_disk": host_share.DATASTORES.MAX_DISK
+    }
+
+    return jsonify(host_data), 200
 
 @app.route('/vm/info', methods=['GET', 'POST'])
 def vm():
@@ -204,7 +219,7 @@ def login():
     one_id = users[0].get('one_id')
     one = pyone.OneServer(f"http://{IP}:2633", session="oneadmin:12345")
     vm_pool = one.vmpool.info(-2, -1, -1, -1) 
-    user_vms = [vm for vm in vm_pool.VM if vm.UID == one_id]
+    user_vms = [vm for vm in vm_pool.VM if vm.UID == one_id] #type: ignore
 
     # Print the number of VMs the user has
     print(f"The user has {len(user_vms)} VMs.")
@@ -212,6 +227,8 @@ def login():
 
 
 if __name__ == "__main__":
+    one = pyone.OneServer(f"http://{IP}:2633/RPC2", session="oneadmin:12345")
+    host_info = one.hostpool.info(0) #type: ignore
     cred = credentials.Certificate('credentials.json')
     fb_app = firebase_admin.initialize_app(cred)
     db = firestore.client(fb_app)
