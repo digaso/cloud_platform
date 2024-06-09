@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 
 const NavigationPage = () => {
+  const username = localStorage.getItem("username");
   const navigate = useNavigate();
 
   const handleCreateVM = () => {
@@ -18,7 +19,7 @@ const NavigationPage = () => {
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.header}>Welcome</h1>
+      <h1 style={styles.header}>Welcome {username}</h1>
       <button onClick={handleCreateVM} style={styles.button}>
         Create a VM
       </button>
@@ -55,7 +56,7 @@ const styles = {
     borderRadius: "5px",
     cursor: "pointer",
     marginTop: "10px",
-  },
+  }
 };
 
 export default NavigationPage;

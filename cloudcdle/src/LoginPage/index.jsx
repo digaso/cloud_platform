@@ -13,6 +13,7 @@ const LoginPage = () => {
         axios.post('http://localhost:8080/login', user)
         .then((res) => {
                 alert(res.data.message)
+                localStorage.setItem('username', user.username);
                 navigate('/os-selection');
          
         })
