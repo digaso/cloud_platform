@@ -1,4 +1,6 @@
+import time
 from flask import Flask, jsonify, request
+import json
 from flask_cors import CORS
 import pyone
 import firebase_admin
@@ -58,6 +60,7 @@ def register():
 @app.route('/user', methods=['GET'])
 def user():
     username = request.args.get('username')
+    update_user_vms(username)
     user_ref = db.collection('users').where('username', '==', username)
     user_doc = user_ref.get()
     # Check if the document exists
@@ -68,7 +71,98 @@ def user():
 
     return jsonify({"message": "User not found"}), 404
 
-@app.route('/vm', methods=['GET', 'POST'])
+def vm_to_dict(vm, one):
+    return {
+        "ID": vm.ID,
+        "Name": vm.NAME,
+        "State": vm.STATE,
+        "Owner": vm.UNAME,
+        "UID": vm.UID,
+        "GID": vm.GID,
+        "Memory": one.vm.info(vm.ID).TEMPLATE['MEMORY'],
+        "NICs": len(one.vm.info(vm.ID).TEMPLATE['NIC']),
+        "CPU": one.vm.info(vm.ID).TEMPLATE['CPU'],
+        "OS": one.vm.info(vm.ID).TEMPLATE['OS'],
+        "VNC": one.vm.info(vm.ID).TEMPLATE['GRAPHICS']['LISTEN'],
+        "Disk": one.vm.info(vm.ID).TEMPLATE['DISK'],
+        "Context": one.vm.info(vm.ID).TEMPLATE['CONTEXT']
+
+        # Add more fields as needed
+    }
+
+@app.route('/user/vm_list', methods=['GET'])#type: ignore
+def user_vms():
+    username = request.args.get('username')
+    update_user_vms(username)
+    user_ref = db.collection('users').where('username', '==', username)
+    user_doc = user_ref.get()
+    # Check if the document exists
+    if user_doc != None and len(user_doc) > 0:
+        user_data = user_doc[0].to_dict()
+        one = pyone.OneServer(f"http://{IP}:2633/RPC2", session="oneadmin:12345")
+        vm_pool = one.vmpool.info(-2, -1, -1, -1) # Retrieve all VMs
+
+        user_vms = [vm_to_dict(vm, one) for vm in vm_pool.VM if vm.UID == user_data['one_id']] # type: ignore # Filter VMs by user ID
+        
+        print(f"The user has {len(user_vms)} VMs.")
+        for vm in user_vms:
+            print(vm)
+
+        return jsonify(user_vms), 200
+
+
+def update_user_vms(username):
+    user_ref = db.collection('users').where('username', '==', username)
+    user_doc = user_ref.get()
+    # Check if the document exists
+    if user_doc != None and len(user_doc) > 0:
+        user_data = user_doc[0].to_dict()
+        one = pyone.OneServer(f"http://{IP}:2633/RPC2", session="oneadmin:12345")
+        vm_pool = one.vmpool.info(-2, -1, -1, -1) # Retrieve all VMs
+
+        user_vms = [vm_to_dict(vm, one) for vm in vm_pool.VM if vm.UID == user_data['one_id']] # type: ignore # Filter VMs by user ID
+        
+        print(f"The user has {len(user_vms)} VMs.")
+
+        user_doc[0].reference.update({"vms": user_vms})
+
+    return None
+
+
+@app.route('/user/VM', methods=['POST'])#type: ignore
+def create_vm():
+    data = request.get_json()
+    one = pyone.OneServer(f"http://{IP}:2633", session="oneadmin:12345")
+    username= data['username']
+    name = data['name']
+    size = data['size']
+
+    template_id = one.template.allocate(f'''
+NAME="{username}-{name}-{time.time()}"
+CONTEXT = [
+    NETWORK = "YES"]
+CPU = "1"
+MEMORY = "1024"
+DISK = [
+    SIZE = "{size}",
+    IMAGE_ID = "9" ]
+NIC = [
+    NETWORK_ID = "0",
+    MODEL = "virtio"]
+GRAPHICS = [
+    LISTEN = "0.0.0.0",
+    TYPE = "VNC"]''')
+
+    print(f"Created Template ID: {template_id}")
+    instance_id = one.template.instantiate(template_id, name)
+    one_user_id = db.collection('users').where('username', '==', username).get()[0].get('one_id')
+    one.vm.chown(instance_id,one_user_id, -1)
+    print("Instance created successfully")
+    update_user_vms(username)
+    return jsonify({"message": "VM created successfully"}), 201
+
+
+@app.route('/vm/info', methods=['GET', 'POST'])
 def vm():
     if request.method == 'GET':
         return jsonify({"message": "GET VM"})
@@ -81,15 +175,13 @@ def vm():
         vm_pool = one.vmpool.info(-2, -1, -1, -1) # Retrieve all VMs
         vm = None
         
-        for vm in vm_pool.VM:
+        for vm in vm_pool.VM:#type: ignore
             if vm.ID == int(id):
                 break
 
         if vm == None:
             return jsonify({"message": "VM not found"}), 404
         
-        
-
         return jsonify({"message": "POST VM"})
 
     return jsonify({"message": "Invalid method"}), 400
