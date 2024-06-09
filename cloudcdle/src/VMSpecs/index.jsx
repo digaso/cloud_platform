@@ -8,13 +8,14 @@ const VMSpecs = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const username = localStorage.getItem('username');
   const handleNavigateToMyAccount = () => {
       navigate("/my-account");
       }
       useEffect(() => {
-          axios.get(`http://localhost:8080/vm/info`, {id:vmId})
+          axios.get('http://localhost:8080/user/vm_list', username)
           .then((response) => {
-          console.log(response.data);
+              console.log(response.data);
         const vm = response.data;
         const vmSpecs = {
           ID: vm.ID,
