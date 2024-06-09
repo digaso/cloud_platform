@@ -14,6 +14,7 @@ const RegisterPage = () => {
         axios.post('http://localhost:8080/register', newUser)
         .then((res) => {
                 alert(res.data.message)
+                localStorage.setItem('username', newUser.username);
                 navigate('/os-selection');
          
         })
