@@ -3,8 +3,9 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 
 # Use a service account.
-cred = credentials.Certificate('credentials.json')
+cred = credentials.Certificate('server/credentials.json')
 
 app = firebase_admin.initialize_app(cred)
+
 
 db = firestore.client()

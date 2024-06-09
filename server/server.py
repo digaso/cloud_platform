@@ -34,19 +34,50 @@ def register():
     #check if there is not others atributes
     if len(data.keys()) > 2:
         return jsonify({"message": "Invalid attributes"}), 400
-    #add user to firebase
-    if len(db.collection('users').where('username', '==', data['username']).get()) > 0:
+    #add user to firebase with filter
+    if db.collection('users').where('username', '==', data['username']).get():
         return jsonify({"message": "Username already exists"}), 400
-    
     one = pyone.OneServer(f"http://{IP}:2633", session="oneadmin:12345")
+    #check if username  exists in opennebula
+    user_id = -1
+    users = one.userpool.info()
+    for user in users.USER: # type: ignore
+        if user.NAME == data['username']:
+            return jsonify({"message": "Username already exists"}), 400
+        
     user_id = one.user.allocate(data['username'], data['password'],'',[1])
     print(f"User ID: {user_id}")
     data['one_id'] = user_id
+    data['vms'] = []
+    data['ssh_keys_pub'] = []
+    data['ssh_keys_priv'] = []
     db.collection('users').add(data, data['username'])
     return jsonify({"message": "User created successfully"}), 201
 
+#get user by id
+@app.route('/user', methods=['GET'])
+def user():
+    username = request.args.get('username')
+    user_ref = db.collection('users').where('username', '==', username)
+    user_doc = user_ref.get()
+    # Check if the document exists
+    if user_doc != None and len(user_doc) > 0:
+        user_data = user_doc[0].to_dict() 
+        del user_data['password'] #type: ignore
+        return jsonify(user_data), 200
 
-@app.route('/users', methods=['GET'])
+    return jsonify({"message": "User not found"}), 404
+
+@app.route('/vm', methods=['GET', 'POST'])
+def vm():
+    if request.method == 'GET':
+        return jsonify({"message": "GET VM"})
+    elif request.method == 'POST':
+        id = request.args.get('id')
+        
+        return jsonify({"message": "POST VM"})
+
+    return jsonify({"message": "Invalid method"}), 400
 
 @app.route('/login', methods=['POST'])
 def login():

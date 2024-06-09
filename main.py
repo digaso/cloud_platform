@@ -26,7 +26,8 @@ template_id = one.template.allocate('''
   IMAGE_ID = "1" ]
   CPU="1"
   VCPU="2"
-''')
+  NIC = [
+    NETWORK = "vnet"]''')
 
 print(f"Created Template ID: {template_id}")
 
