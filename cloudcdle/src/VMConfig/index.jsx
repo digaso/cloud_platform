@@ -1,36 +1,36 @@
+import axios from 'axios';
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const VMConfigurator = () => {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const os = queryParams.get('os');
-
-    const [vmName, setVmName] = useState('');
-    const [cpus, setCpus] = useState(0);
-    const [memory, setMemory] = useState(0);
-    const [processingPower, setProcessingPower] = useState(0);
     const [isCreating, setIsCreating] = useState(false);
-
+    const navigate = useNavigate();
+    const [vmName, setVmName] = useState('');
+    const [memory, setMemory] = useState(0);
+    const username = localStorage.getItem('username');
+    const name = vmName;
+    const size = memory;
+    const vm= {username, name, size} ;
     const handleCreate = () => {
         setIsCreating(true);
-        const template_id = `one.template.allocate('''
-          NAME="${vmName}"
-          MEMORY="${memory}"
-          DISK = [
-          IMAGE_ID = "${os === 'Linux' ? 1 : 2}" ]
-          CPU="${cpus}"
-          VCPU="${processingPower}"
-        ''')`;
-        
-        setTimeout(() => {
+        axios.post('http://localhost:8080/user/VM', vm).then((res) => {
+            alert(res.data.message);
             setIsCreating(false);
-            alert(`VM has been created successfully!\nTemplate ID: ${template_id}`);
-        }, 3000);
+            navigate('/VMSpecs');
+
+        }).catch((error) => {
+            alert(error.response.data.message);
+            setIsCreating(false);
+        });
     };
 
+
     const validateInputs = () => {
-        return vmName && cpus > 0 && cpus <= 8 && memory > 0 && processingPower > 0;
+        return vmName && memory > 2252;
     };
 
     return (
@@ -58,8 +58,8 @@ const VMConfigurator = () => {
                     <input
                         type="range"
                         value={memory}
-                        min={0}
-                        max={260000}
+                        min={2252}
+                        max={50000}
                         onChange={(e) => setMemory(Number(e.target.value))}
                         style={styles.slider}
                     />

@@ -6,6 +6,7 @@ import LoginPage from "./LoginPage";
 import VMConfig from "./VMConfig";
 import RegistrationPage from "./RegistrationPage"
 import AccountPage from "./AccountPage"
+import VMSpecs from "./VMSpecs"
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 const router = createBrowserRouter([
@@ -29,6 +30,10 @@ const router = createBrowserRouter([
     path: "/my-account",
     element: <AccountPage />,  
   },
+  {
+    path: "/VMSpecs",
+    element: <VMSpecs />,
+  }
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(

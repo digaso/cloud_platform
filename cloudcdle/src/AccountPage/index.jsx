@@ -13,27 +13,21 @@ const AccountPage = () => {
     ssh_keys_pub: [],
     ssh_keys_priv: []
   });
-  
+
   const [newSshKey, setNewSshKey] = useState('');
   const username = localStorage.getItem('username');
-  
+
   useEffect(() => {
     // Fetch user data from the server
-    axios({
-      url:'http://localhost:8080/user',
-      params: {
-        username: username
-      }
-    })
-    .then((response) => {
-      console.log('User data:', response.data);
-      setUserData(response.data);
-    })
-    .catch((error) => {
-      console.error('Error fetching user data:', error);
-    });
-  }, []);
-  
+    axios.get('http://localhost:8080/user', { params: { username } })
+      .then((response) => {
+        setUserData(response.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching user data:', error);
+      });
+  }, [username]);
+
   const handleSshKeyChange = (event) => {
     setNewSshKey(event.target.value);
   };
@@ -42,13 +36,11 @@ const AccountPage = () => {
     const userConfirmed = window.confirm("Do you want to update your SSH key?");
     if (userConfirmed) {
       axios.post('http://localhost:8080/user/ssh_key', {
-        username: username,
+        username,
         ssh_key: newSshKey
       })
       .then((response) => {
-        console.log('SSH key added:', response.data);
-        // Optionally, you can refresh the user data to include the new SSH key
-        setUserData((prevData) => ({
+        setUserData(prevData => ({
           ...prevData,
           ssh_keys_pub: [...prevData.ssh_keys_pub, newSshKey]
         }));
@@ -60,24 +52,36 @@ const AccountPage = () => {
     }
   };
 
-  if (!userData) {
-    return <div style={styles.container}>Loading...</div>;
-  }
-
   const handleHomePage = () => {
     navigate("/os-selection");
   };
+
+  const handleVMSpecsPage = () => {
+    navigate("/VMSpecs");
+  };
+
+  if (!userData) {
+    return <div style={styles.container}>Loading...</div>;
+  }
 
   return (
     <div style={styles.container}>
       <button onClick={handleHomePage} style={styles.button}>
         Back
       </button>
+      <button onClick={handleVMSpecsPage} style={styles.button}>
+        My VMs
+      </button>
       <h1 style={styles.header}>My Account</h1>
       <div style={styles.userData}>
         <p>Username: {userData.username}</p>
         <p>One ID: {userData.one_id}</p>
-        <p>VMs: {userData.vms.join(', ')}</p>
+        <p>VMs:</p>
+        <ul>
+          {userData.vms.map((vm, index) => (
+            <li key={index}>{vm.NAME}</li>
+          ))}
+        </ul>
         <p>Public SSH: {userData.ssh_keys_pub.join(', ')}</p>
         <input
           type="text"
