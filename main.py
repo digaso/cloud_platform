@@ -8,10 +8,9 @@ ssh_public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDuz+sNIACCywc42g/2c89YGc
 
 # Step 1: Create a Disk Image
 image_template = '''
-NAME = "Disk_Test2"
+NAME = "Disk_Test2w22"
 PATH = "./ubuntu_20_04.qcow2"
 TYPE = "OS"
-PERSISTENT = "YES"
 '''
 
 # Allocate the new disk image
@@ -23,33 +22,15 @@ for template in templates_info.VMTEMPLATE:
     if template.ID != 0:
         one.template.delete(template.ID)
 
-# Define the new VM template
-template_definition = f"""
-
-CONTEXT = [
-    SSH_PUBLIC_KEY = "{ssh_public_key}",
-    NETWORK = "YES"]
-CPU = "1"
-MEMORY = "1024"
-DISK = [
-    IMAGE_ID = "{image_id}"
-]
-NIC = [
-    NETWORK_ID = "0",
-    MODEL = "virtio"]
-GRAPHICS = [
-    LISTEN = "0.0.0.0",
-    TYPE = "VNC"]"""
-
 # Allocate the new template
 template_id = one.template.allocate(f'''
-NAME="Teste"
+NAME="{name}"
 CONTEXT = [
-    SSH_PUBLIC_KEY = "{ssh_public_key}",
     NETWORK = "YES"]
 CPU = "1"
 MEMORY = "1024"
 DISK = [
+    SIZE = "{size}",
     IMAGE_ID = "{image_id}" ]
 NIC = [
     NETWORK_ID = "0",
