@@ -85,9 +85,6 @@ def vm_to_dict(vm, one):
         "OS": one.vm.info(vm.ID).TEMPLATE['OS'],
         "VNC": one.vm.info(vm.ID).TEMPLATE['GRAPHICS']['LISTEN'],
         "Disk": one.vm.info(vm.ID).TEMPLATE['DISK'],
-        "Context": one.vm.info(vm.ID).TEMPLATE['CONTEXT']
-
-        # Add more fields as needed
     }
 
 @app.route('/user/vm_list', methods=['GET'])#type: ignore
@@ -105,9 +102,6 @@ def user_vms():
         user_vms = [vm_to_dict(vm, one) for vm in vm_pool.VM if vm.UID == user_data['one_id']] # type: ignore # Filter VMs by user ID
         
         print(f"The user has {len(user_vms)} VMs.")
-        for vm in user_vms:
-            print(vm)
-
         return jsonify(user_vms), 200
     
     return jsonify({"message": "User not found"}), 404
