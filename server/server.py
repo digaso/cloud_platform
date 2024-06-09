@@ -5,7 +5,7 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
 
-IP = "34.38.189.124"
+IP = "104.199.41.215"
 
 app = Flask(__name__)
 
