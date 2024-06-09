@@ -1,7 +1,7 @@
 import pyone
 
 
-one = pyone.OneServer("http://34.38.189.124:2633/RPC2", session="oneadmin:12345")
+one = pyone.OneServer("http://104.199.41.215:2633/RPC2", session="oneadmin:12345")
 hostpool = one.hostpool.info()
 host = hostpool.HOST[0]
 print("Host information:")
