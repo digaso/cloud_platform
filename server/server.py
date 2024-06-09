@@ -133,10 +133,12 @@ def update_user_vms(username):
 def create_vm():
     data = request.get_json()
     one = pyone.OneServer(f"http://{IP}:2633", session="oneadmin:12345")
+    vms_existing = one.hostpool.info(0).HOST[0].HOST_SHARE.RUNNING_VMS #type: ignore
+    if vms_existing >= 4:
+        return jsonify({"message": "Host is full"}), 400
     username= data['username']
     name = data['name']
     size = data['size']
-
     template_id = one.template.allocate(f'''
 NAME="{username}-{name}-{time.time()}"
 CONTEXT = [
@@ -162,29 +164,55 @@ GRAPHICS = [
     return jsonify({"message": "VM created successfully"}), 201
 
 
-@app.route('/vm/info', methods=['GET', 'POST'])
+@app.route('/host/info', methods=['GET'])
+def host():
+    one = pyone.OneServer(f"http://{IP}:2633/RPC2", session="oneadmin:12345")
+    host_share = one.hostpool.info(0).HOST[0].HOST_SHARE #type: ignore
+    host_data ={
+        "cpu_usage": host_share.CPU_USAGE,
+        "memory_usage": host_share.MEM_USAGE,
+        "max_cpu": host_share.MAX_CPU,
+        "max_memory": host_share.MAX_MEM,
+        "running_vms": host_share.RUNNING_VMS,
+        "used_disk": host_share.DATASTORES.USED_DISK,
+        "max_disk": host_share.DATASTORES.MAX_DISK
+    }
+
+    return jsonify(host_data), 200
+
+@app.route('/vm/info', methods=['GET'])
 def vm():
-    if request.method == 'GET':
-        return jsonify({"message": "GET VM"})
-    elif request.method == 'POST':
-        id = request.args.get('id')
-        if id == None:
-            return jsonify({"message": "ID is required"}), 400
-        
-        one = pyone.OneServer(f"http://{IP}:2633/RPC2", session="oneadmin:12345")
-        vm_pool = one.vmpool.info(-2, -1, -1, -1) # Retrieve all VMs
-        vm = None
-        
-        for vm in vm_pool.VM:#type: ignore
-            if vm.ID == int(id):
-                break
-
-        if vm == None:
-            return jsonify({"message": "VM not found"}), 404
-        
-        return jsonify({"message": "POST VM"})
-
-    return jsonify({"message": "Invalid method"}), 400
+    id = request.args.get('id')
+    if id == None:
+        return jsonify({"message": "ID is required"}), 400
+    
+    one = pyone.OneServer(f"http://{IP}:2633/RPC2", session="oneadmin:12345")
+    vm_pool = one.vmpool.info(-2, -1, -1, -1) # Retrieve all VMs
+    vm = None
+    
+    for vm in vm_pool.VM:#type: ignore
+        if vm.ID == int(id):
+            break
+    if vm == None:
+        return jsonify({"message": "VM not found"}), 404
+    
+    vm_data = {
+        "ID": vm.ID,
+        "Name": vm.NAME,
+        "State": vm.STATE,
+        "Owner": vm.UNAME,
+        "UID": vm.UID,
+        "GID": vm.GID,
+        "Memory": one.vm.info(vm.ID).TEMPLATE['MEMORY'],
+        "NICs": len(one.vm.info(vm.ID).TEMPLATE['NIC']),
+        "CPU": one.vm.info(vm.ID).TEMPLATE['CPU'],
+        "OS": one.vm.info(vm.ID).TEMPLATE['OS'],
+        "VNC": one.vm.info(vm.ID).TEMPLATE['GRAPHICS']['LISTEN'],
+        "Disk": one.vm.info(vm.ID).TEMPLATE['DISK'],
+        "Context": one.vm.info(vm.ID).TEMPLATE['CONTEXT']
+    }
+    
+    return jsonify(vm_data), 200
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -204,7 +232,7 @@ def login():
     one_id = users[0].get('one_id')
     one = pyone.OneServer(f"http://{IP}:2633", session="oneadmin:12345")
     vm_pool = one.vmpool.info(-2, -1, -1, -1) 
-    user_vms = [vm for vm in vm_pool.VM if vm.UID == one_id]
+    user_vms = [vm for vm in vm_pool.VM if vm.UID == one_id] #type: ignore
 
     # Print the number of VMs the user has
     print(f"The user has {len(user_vms)} VMs.")
@@ -212,6 +240,8 @@ def login():
 
 
 if __name__ == "__main__":
+    one = pyone.OneServer(f"http://{IP}:2633/RPC2", session="oneadmin:12345")
+    host_info = one.hostpool.info(0) #type: ignore
     cred = credentials.Certificate('credentials.json')
     fb_app = firebase_admin.initialize_app(cred)
     db = firestore.client(fb_app)
