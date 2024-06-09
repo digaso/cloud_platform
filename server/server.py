@@ -109,6 +109,8 @@ def user_vms():
             print(vm)
 
         return jsonify(user_vms), 200
+    
+    return jsonify({"message": "User not found"}), 404
 
 
 def update_user_vms(username):
@@ -241,7 +243,6 @@ def login():
 
 if __name__ == "__main__":
     one = pyone.OneServer(f"http://{IP}:2633/RPC2", session="oneadmin:12345")
-    host_info = one.hostpool.info(0) #type: ignore
     cred = credentials.Certificate('credentials.json')
     fb_app = firebase_admin.initialize_app(cred)
     db = firestore.client(fb_app)
