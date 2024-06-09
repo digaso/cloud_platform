@@ -74,7 +74,22 @@ def vm():
         return jsonify({"message": "GET VM"})
     elif request.method == 'POST':
         id = request.args.get('id')
+        if id == None:
+            return jsonify({"message": "ID is required"}), 400
         
+        one = pyone.OneServer(f"http://{IP}:2633/RPC2", session="oneadmin:12345")
+        vm_pool = one.vmpool.info(-2, -1, -1, -1) # Retrieve all VMs
+        vm = None
+        
+        for vm in vm_pool.VM:
+            if vm.ID == int(id):
+                break
+
+        if vm == None:
+            return jsonify({"message": "VM not found"}), 404
+        
+        
+
         return jsonify({"message": "POST VM"})
 
     return jsonify({"message": "Invalid method"}), 400
