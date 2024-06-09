@@ -47,17 +47,6 @@ const VMConfigurator = () => {
                     />
                 </div>
                 <div style={styles.formGroup}>
-                    <label style={styles.label}>Number of CPUs (max 8):</label>
-                    <input
-                        type="number"
-                        value={cpus}
-                        min={0}
-                        max={8}
-                        onChange={(e) => setCpus(Math.max(0, Math.min(8, Number(e.target.value))))}
-                        style={styles.input}
-                    />
-                </div>
-                <div style={styles.formGroup}>
                     <label style={styles.label}>Maximum Memory (MB):</label>
                     <input
                         type="number"
@@ -72,24 +61,6 @@ const VMConfigurator = () => {
                         min={0}
                         max={260000}
                         onChange={(e) => setMemory(Number(e.target.value))}
-                        style={styles.slider}
-                    />
-                </div>
-                <div style={styles.formGroup}>
-                    <label style={styles.label}>Processing Power (MB):</label>
-                    <input
-                        type="number"
-                        value={processingPower}
-                        min={0}
-                        onChange={(e) => setProcessingPower(Math.max(0, Number(e.target.value)))}
-                        style={styles.input}
-                    />
-                    <input
-                        type="range"
-                        value={processingPower}
-                        min={0}
-                        max={8000}
-                        onChange={(e) => setProcessingPower(Number(e.target.value))}
                         style={styles.slider}
                     />
                 </div>

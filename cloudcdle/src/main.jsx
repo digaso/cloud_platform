@@ -25,7 +25,6 @@ const router = createBrowserRouter([
     path: "/vm-config",
     element: <VMConfig />,
   },
-  
   {
     path: "/my-account",
     element: <AccountPage />,  
