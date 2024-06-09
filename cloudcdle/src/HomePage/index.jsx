@@ -1,21 +1,32 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-const OSSelectionPage = () => {
+const NavigationPage = () => {
   const navigate = useNavigate();
 
-  const handleSelectOS = (os) => {
-    navigate(`/vm-config?os=${os}`);
+  const handleCreateVM = () => {
+    navigate("/vm-config");
+  };
+
+  const handleMyAccount = () => {
+    navigate("/my-account");
+  };
+
+  const handleLogout = () => {
+    navigate("/login");
   };
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.header}>Select OS</h1>
-      <button onClick={() => handleSelectOS("Linux")} style={styles.button}>
-        Linux
+      <h1 style={styles.header}>Welcome</h1>
+      <button onClick={handleCreateVM} style={styles.button}>
+        Create a VM
       </button>
-      <button onClick={() => handleSelectOS("Windows")} style={styles.button}>
-        Windows
+      <button onClick={handleMyAccount} style={styles.button}>
+        My Account
+      </button>
+      <button onClick={handleLogout} style={styles.button}>
+        Logout
       </button>
     </div>
   );
@@ -47,4 +58,4 @@ const styles = {
   },
 };
 
-export default OSSelectionPage;
+export default NavigationPage;

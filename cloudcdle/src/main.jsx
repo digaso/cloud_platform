@@ -5,6 +5,7 @@ import HomePage from "./HomePage";
 import LoginPage from "./LoginPage";
 import VMConfig from "./VMConfig";
 import RegistrationPage from "./RegistrationPage"
+import AccountPage from "./AccountPage"
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 const router = createBrowserRouter([
@@ -23,6 +24,11 @@ const router = createBrowserRouter([
   {
     path: "/vm-config",
     element: <VMConfig />,
+  },
+  
+  {
+    path: "/my-account",
+    element: <AccountPage />,  
   },
 ]);
 
